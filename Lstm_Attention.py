@@ -71,16 +71,19 @@ class lstm_Attention_with_Pos(object):
         sequence_length = tf.count_nonzero(sentence,axis=-1)
         
         
-         
-        lstm_cell_fw = tf.contrib.rnn.LSTMCell(num_cell,forget_bias=1.0)
-        dropout_wrapper_fw = tf.contrib.rnn.DropoutWrapper(lstm_cell_fw,output_keep_prob=1. - dropout_value)
+        
+        with tf.variable_scope('forward_cell'):
+                lstm_cell_fw = tf.contrib.rnn.LSTMCell(num_cell,forget_bias=1.0)
+                dropout_wrapper_fw = tf.contrib.rnn.DropoutWrapper(lstm_cell_fw,output_keep_prob=1. - dropout_value)
         
         
-        lstm_cell_bw = tf.contrib.rnn.LSTMCell(num_cell,forget_bias=1.0)
-        dropout_wrapper_bw = tf.contrib.rnn.DropoutWrapper(lstm_cell_bw,output_keep_prob=1.- dropout_value)
+        with tf.variable_scope('backward_cell'):
+            lstm_cell_bw = tf.contrib.rnn.LSTMCell(num_cell,forget_bias=1.0)
+            dropout_wrapper_bw = tf.contrib.rnn.DropoutWrapper(lstm_cell_bw,output_keep_prob=1.- dropout_value)
         
         
-        output , last_state     = tf.nn.bidirectional_dynamic_rnn(dropout_wrapper_fw,
+        with tf.variable_scope('bi_lstm') as scope:
+            output , last_state     = tf.nn.bidirectional_dynamic_rnn(dropout_wrapper_fw,
                                                       dropout_wrapper_bw,
                                                       final_input,
                                                       sequence_length=sequence_length,
